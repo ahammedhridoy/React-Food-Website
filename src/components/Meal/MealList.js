@@ -1,39 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import "./Meal.scss";
-import { Link } from 'react-router-dom';
+import MealCard from './MealCard';
 
-const MealList = ({ meals }) => {
-  console.log(meals);
+const PAGE_SIZE = 8;
+
+const MealList = ({ meals, title = "Popular meals", subtitle = "Handpicked dishes our customers love the most.", sectionId = "popular", pageSize = PAGE_SIZE }) => {
+  const [visible, setVisible] = useState(pageSize);
+
+  // reset when a new result set arrives (search / category change)
+  const firstId = meals?.[0]?.idMeal;
+  const total = meals?.length || 0;
+  useEffect(() => {
+    setVisible(pageSize);
+  }, [firstId, total, pageSize]);
+
+  if (!total) return null;
+  const shown = meals.slice(0, visible);
+  const remaining = total - shown.length;
+
   return (
-    <div className='section-wrapper'>
+    <div className='section-wrapper meal-section' id={sectionId}>
       <div className='container'>
-        <div className='sc-title'>meals</div>
-        <section className='sc-meal grid'>
-          {
-            meals?.map(mealItem => {
-              const {idMeal:id, strArea: area, strCategory: category, strMeal: meal, strMealThumb: thumbnail } = mealItem;
-
-              return (
-                <Link to = {`/meal/${id}`} className = "meal-itm align-center justify-center" key = {id}>
-                  <div className='meal-itm-img'>
-                    <img src = {thumbnail} alt = {meal} />
-                    <div className='meal-itm-cat bg-orange text-orange fw-6'>{category}</div>
-                  </div>
-
-                  <div className='meal-itm-body'>
-                    <div className='meal-itm-body-info flex flex-column'>
-                      <div className='area fs-14 ls-1 fw-5'>{area}</div>
-                      <div className='meal fw-15 fw-7 op-09'>{meal}</div>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })
-          }
+        <div className='flex align-center justify-between' style={{ gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <div className='sc-title' style={{ marginBottom: 6 }}>{title}</div>
+            <p className='sc-subtitle' style={{ margin: 0, marginBottom: 22 }}>{subtitle}</p>
+          </div>
+          <span className='pill'>Showing {shown.length} of {total}</span>
+        </div>
+        <section className='meal-grid grid'>
+          {shown.map((mealItem) => (
+            <MealCard key={mealItem.idMeal} mealItem={mealItem} />
+          ))}
         </section>
+        {remaining > 0 && (
+          <div className='load-more-wrap'>
+            <button className='btn-primary' onClick={() => setVisible((v) => v + pageSize)}>
+              Load more ({remaining} remaining)
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MealList
+export default MealList;

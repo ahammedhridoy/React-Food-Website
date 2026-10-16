@@ -1,46 +1,75 @@
-import React, {useState, useEffect} from 'react';
-import {Link} from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./Header.scss";
-import { MdFoodBank} from "react-icons/md";
-import { IoMdMenu} from "react-icons/io";
+import { MdFoodBank } from "react-icons/md";
+import { IoMdMenu } from "react-icons/io";
+import { FiShoppingBag, FiSearch } from "react-icons/fi";
 import { useSidebarContext } from '../../context/sidebarContext';
+import { useCart } from '../../context/cartContext';
 
 const Navbar = () => {
-  const {openSidebar} = useSidebarContext();
+  const { openSidebar } = useSidebarContext();
+  const { count } = useCart();
   const [scrolled, setScrolled] = useState(false);
-
-  const handleScroll = () => {
-    const offset = window.scrollY;
-    if(offset > 60){
-      setScrolled(true);
-    } else {
-      setScrolled(false);
-    }
-  }
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-  })
+    const handleScroll = () => setScrolled(window.scrollY > 24);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const goSection = (id) => {
+    const scroll = () => {
+      // retry a few times — section may render after API loads
+      let tries = 0;
+      const tick = () => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        else if (tries++ < 20) setTimeout(tick, 200);
+      };
+      tick();
+    };
+    if (location.pathname !== "/") navigate("/");
+    setTimeout(scroll, location.pathname !== "/" ? 350 : 0);
+  };
 
   return (
-    <nav className={`navbar bg-orange flex align-center ${scrolled ? 'scrolled': ""}`}>
+    <nav className={`navbar-modern ${scrolled ? 'scrolled' : ""}`}>
       <div className='container w-100'>
-        <div className='navbar-content text-white'>
-          <div className='brand-and-toggler flex align-center justify-between'>
-            <Link to = "/" className='navbar-brand fw-3 fs-22 flex align-center'>
-              <MdFoodBank />
-              <span className='navbar-brand-text fw-7'>FastEat.</span>
-            </Link>
-            <div className='navbar-btns flex align-center'>
-              <button type = "button" className='navbar-show-btn text-white' onClick={() => openSidebar()}>
-                <IoMdMenu size = {27} />
-              </button>
-            </div>
+        <div className='nav-inner flex align-center justify-between'>
+          <Link to="/" className='brand flex align-center'>
+            <span className='brand-icon'><MdFoodBank /></span>
+            <span className='brand-text'>FastEat<span className='dot'>.</span></span>
+          </Link>
+
+          <div className='nav-links flex align-center'>
+            <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Home</NavLink>
+            <button className='nav-link as-btn' onClick={() => goSection("categories")}>Categories</button>
+            <button className='nav-link as-btn' onClick={() => goSection("popular")}>Popular</button>
+            <button className='nav-link as-btn' onClick={() => goSection("how")}>How it works</button>
+          </div>
+
+          <div className='nav-actions flex align-center'>
+            <button className='icon-btn hide-md' onClick={() => goSection("popular")} aria-label="search">
+              <FiSearch size={19} />
+            </button>
+            <button className='cart-btn flex align-center' onClick={() => navigate("/cart")} aria-label="cart">
+              <FiShoppingBag size={19} />
+              <span className='cart-label hide-sm'>Cart</span>
+              {count > 0 && <span className='cart-count'>{count > 99 ? "99+" : count}</span>}
+            </button>
+            <Link to="/checkout" className='btn-primary nav-cta hide-sm'>Order Now</Link>
+            <button type="button" className='icon-btn menu-btn' onClick={() => openSidebar()} aria-label="menu">
+              <IoMdMenu size={24} />
+            </button>
           </div>
         </div>
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

@@ -1,120 +1,98 @@
-import React from 'react';
+import React, { useState } from 'react';
 import "./Meal.scss";
-import { FaUtensilSpoon } from "react-icons/fa";
 import { AiFillHome } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BiChevronsRight } from "react-icons/bi";
-import { AiOutlineCheckSquare } from 'react-icons/ai';
+import { FiMinus, FiPlus, FiShoppingBag } from "react-icons/fi";
+import { useCart } from '../../context/cartContext';
+import { getPriceForMeal, formatPrice } from '../../utils/pricing';
 
-const MealSingle = ({meal}) => {
-  console.log(meal);
-  let tags = meal?.tags?.split(',');
-  console.log(meal);
+const MealSingle = ({ meal }) => {
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+  const [qty, setQty] = useState(1);
+  if (!meal?.id) return null;
+
+  const price = getPriceForMeal(meal.id);
   let instructions = meal?.instructions?.split('\r\n');
-  instructions = instructions?.filter(instruction => instruction.length > 1);
+  instructions = instructions?.filter((i) => i.length > 1)?.slice(0, 8);
+
+  const buy = (goCheckout) => {
+    addToCart({ idMeal: meal.id, strMeal: meal.title, strMealThumb: meal.thumbnail, strCategory: meal.category, strArea: meal.area }, qty);
+    if (goCheckout) navigate("/checkout");
+    else navigate("/cart");
+  };
 
   return (
-    <div className='section-wrapper'>
+    <div className='meal-details-wrap'>
       <div className='container'>
-        <div className='breadcrumb bg-orange text-white'>
+        <div className='breadcrumb bg-white'>
           <ul className='flex align-center my-2'>
             <li className='breadcrumb-item'>
-              <Link to = "/" className='flex align-center'>
-                <AiFillHome size = {22} />
-              </Link>
+              <Link to="/" className='flex align-center'><AiFillHome size={22} /></Link>
             </li>
-            <li className='flex align-center mx-1'>
-              <BiChevronsRight size = {23} />
-            </li>
-            <li className='breadcrumb-item flex'>
-              <span to = "" className='fs-15 fw-5 text-uppercase'>{meal?.title}</span>
-            </li>
+            <li className='flex align-center mx-1'><BiChevronsRight size={23} /></li>
+            <li className='breadcrumb-item flex'><span className='fs-15 fw-5'>{meal?.title}</span></li>
           </ul>
         </div>
 
-        <div className='sc-title'>Meal Details</div>
-        <section className='sc-details bg-white'>
-          <div className='details-head grid'>
-            <div className='details-img'>
-              <img src = {meal?.thumbnail} alt = "" className='img-cover' />
-            </div>
-
-            <div className='details-intro'>
-              <h3 className='title text-orange'>{meal?.title}</h3>
-              <div className='py-4'>
-                <div className='category flex align-center'>
-                  <span className='text-uppercase fw-8 ls-1 my-1'>category: &nbsp;</span>
-                  <span className='text-uppercase ls-2'>{ meal?.category }</span>
-                </div>
-
-                <div className='source flex align-center'>
-                  <span className='fw-7'>Source: &nbsp;</span>
-                  <a href = {meal.source}>
-                    {meal.source ? (meal?.source).substring(0, 40) + "..." : "Not found" }
-                  </a>
-                </div>
-              </div>
-
-              <div className='tags flex align-start flex-wrap'>
-                <h6 className='fs-16'>Tags:</h6>
-                <ul className='flex align-center flex-wrap'>
-                  {
-                    tags?.map((tag, idx) => (<li key = {idx} className = "fs-14">{tag}</li>))
-                  }
-                </ul>
-              </div>
-
-              <div className='ingredients my-5 px-3 py-3'>
-                <h6 className='fs-16 text-white'>Ingredients</h6>
-                <ul className='grid'>
-                  {
-                    meal?.ingredients?.map((ingredient, idx) => (
-                      <li key = {idx} className = "flex align-center">
-                        <span className='li-dot'>{idx + 1}</span>
-                        <span className='text-capitalize text-white fs-15'>{ingredient}</span>
-                      </li>
-                    ))
-                  }
-                </ul>
-              </div>
-            </div>
+        <div className='detail-grid grid'>
+          <div className='detail-gallery'>
+            <img src={meal?.thumbnail} alt={meal?.title} className='img-cover' />
           </div>
 
-          <div className='details-body'>
-            <div className='measures my-4'>
-              <h6 className='fs-16'>Measure:</h6>
-              <ul className='grid'>
-                {
-                  meal?.measures?.map((measure, idx) => (
-                    <li key = {idx} className = "fs-14 flex align-end">
-                      <span className='li-icon fs-12 text-orange'>
-                        <FaUtensilSpoon />
-                      </span>
-                      <span className='li-text fs-15 fw-6 op-09'>{measure}</span>
-                    </li>
-                  ))
-                }
-              </ul>
+          <div className='detail-info'>
+            <span className='pill'>{meal?.category || "Special"} • {meal?.area || "World"}</span>
+            <h1 className='my-2'>{meal?.title}</h1>
+            <div className='meta-row'>
+              <span className='meta-chip'>⭐ 4.8 (2.3k reviews)</span>
+              <span className='meta-chip'>🕒 15-25 min</span>
+              <span className='meta-chip'>🔥 Free delivery over $40</span>
+            </div>
+            <div className='price-row'>
+              <span className='price'>{formatPrice(price)}</span>
+              <span className='old'>{formatPrice(price * 1.25)}</span>
+              <span className='pill'>20% OFF</span>
             </div>
 
-            <div className='instructions my-4'>
-              <h6 className='fs-16'>Instructions:</h6>
-              <ul className='grid'>
-                {
-                  instructions?.map((instruction, idx) => (
-                    <li key = {idx} className = "fs-14">
-                      <AiOutlineCheckSquare size = {18} className = "text-orange li-icon" />
-                      <span className='li-text fs-16 fw-5 op-09'>{instruction}</span>
-                    </li>
-                  ))
-                }
+            <div className='qty-row'>
+              <div className='qty'>
+                <button onClick={() => setQty((q) => Math.max(1, q - 1))}><FiMinus /></button>
+                <b>{qty}</b>
+                <button onClick={() => setQty((q) => Math.min(20, q + 1))}><FiPlus /></button>
+              </div>
+              <button className='btn-ghost' onClick={() => buy(false)}><FiShoppingBag /> Add to cart</button>
+              <button className='btn-primary' onClick={() => buy(true)}>Buy now • {formatPrice(price * qty)}</button>
+            </div>
+
+            {meal?.tags && (
+              <div className='tags'>
+                {meal.tags.split(',').slice(0, 4).map((t, i) => <span key={i}>#{t.trim()}</span>)}
+              </div>
+            )}
+
+            <div className='ing-box'>
+              <h4>Ingredients ({meal?.ingredients?.length || 0})</h4>
+              <ul>
+                {meal?.ingredients?.slice(0, 10).map((ing, idx) => (
+                  <li key={idx}>{idx + 1}. {ing} {meal?.measures?.[idx] ? `— ${meal.measures[idx]}` : ""}</li>
+                ))}
               </ul>
             </div>
           </div>
-        </section>
+        </div>
+
+        <div className='instructions-card'>
+          <div className='sc-title'>How we cook it</div>
+          <ul>
+            {instructions?.map((ins, idx) => (
+              <li key={idx}><span className='n'>{idx + 1}</span><span>{ins}</span></li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MealSingle
+export default MealSingle;

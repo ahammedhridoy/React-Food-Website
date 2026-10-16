@@ -1,0 +1,8 @@
+# Screenshots folder
+# Add these 5 files (exact names) so README images render on GitHub:
+#   home.png      → homepage desktop (1280px)
+#   details.png   → meal details page
+#   cart.png      → cart page
+#   checkout.png  → checkout page
+#   mobile.png    → mobile hero (390px)
+# Tip: Chrome DevTools → device toolbar → Capture screenshot
