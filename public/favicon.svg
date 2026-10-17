@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FastEat">
+  <defs>
+    <linearGradient id="fasteat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6a3d" />
+      <stop offset="1" stop-color="#ff2e63" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112.64" fill="url(#fasteat)" />
+  <g fill="#ffffff">
+    <path d="M87.04 230.4 A168.96 125.44 0 0 1 424.96 230.4 Z" />
+    <path d="M66.56 240.384 Q161.28 254.72 256 240.384 Q350.72 226.048 445.44 240.384 L445.44 258.816 Q350.72 244.48 256 258.816 Q161.28 273.152 66.56 258.816 Z" />
+    <rect x="74.24" y="273.92" width="363.52" height="46.08" rx="20.48" />
+    <rect x="94.72" y="335.36" width="322.56" height="76.8" rx="61.44" />
+  </g>
+</svg>
