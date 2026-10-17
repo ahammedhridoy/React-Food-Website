@@ -31,21 +31,7 @@
 
 ## 📸 Screenshots
 
-> Put your screenshots in the `screenshots/` folder with these exact names:
-
-| Home | Meal details |
-|------|--------------|
-| ![Home](screenshots/home.png) | ![Details](screenshots/details.png) |
-
-| Cart | Checkout |
-|------|----------|
-| ![Cart](screenshots/cart.png) | ![Checkout](screenshots/checkout.png) |
-
-| Mobile hero |
-|-------------|
-| ![Mobile](screenshots/mobile.png) |
-
-📁 Missing images? Take 5 quick shots (`1280px` desktop + `390px` mobile) and save them as above — the README picks them up automatically.
+![Home](screenshots/home.png)
 
 ## 🛠 Tech stack
 
